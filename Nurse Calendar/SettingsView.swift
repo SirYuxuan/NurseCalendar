@@ -17,7 +17,7 @@ struct SettingsView: View {
                           selection: $startDate,
                           displayedComponents: [.date])
                     .environment(\.locale, Locale(identifier: "zh_CN"))
-                    .onChange(of: startDate) { newValue in
+                    .onChange(of: startDate) { oldValue, newValue in
                         startDateString = newValue.ISO8601Format()
                     }
             }
@@ -55,6 +55,7 @@ struct SettingsView: View {
                 Text("拖动调整顺序，左滑删除")
             }
         }
+        .environment(\.locale, Locale(identifier: "zh_CN"))
         .navigationTitle("设置")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -73,7 +74,7 @@ struct SettingsView: View {
         .sheet(isPresented: $showingShiftPicker) {
             ShiftPickerView(shiftPattern: $shiftPattern)
         }
-        .onChange(of: shiftPattern) { newValue in
+        .onChange(of: shiftPattern) { oldValue, newValue in
             if let data = try? JSONEncoder().encode(newValue) {
                 shiftPatternData = data
             }

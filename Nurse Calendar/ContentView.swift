@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct ContentView: View {
     @State private var selectedDate = Date()
@@ -25,24 +26,43 @@ struct ContentView: View {
         NavigationStack {
             VStack(spacing: 20) {
                 // 今日排班卡片
-                if let todayShift = getTodayShift() {
+                if let selectedShift = getSelectedShift() {
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("今日排班")
+                            // 日期显示
+                            Text(getDateString(selectedDate))
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
-                            Text(todayShift.name)
-                                .font(.title2)
-                                .foregroundColor(todayShift.color)
-                                .bold()
+                            
+                            // 农历日期
+                            Text(getLunarDateString(selectedDate))
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            // 排班和节日显示
+                            HStack(spacing: 4) {
+                                Text(selectedShift.name)
+                                    .font(.title2)
+                                    .foregroundColor(selectedShift.color)
+                                    .bold()
+                                
+                                if let holiday = getHolidayString(selectedDate) {
+                                    Text("·\(holiday)")
+                                        .font(.title3)
+                                        .foregroundColor(.red)
+                                }
+                            }
                         }
                         Spacer()
                         Circle()
-                            .fill(todayShift.color.opacity(0.2))
+                            .fill(selectedShift.color.opacity(0.2))
                             .frame(width: 50, height: 50)
                             .overlay(
-                                Image(systemName: "calendar")
-                                    .foregroundColor(todayShift.color)
+                                Image("hellokitty")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding(8)
+                                    .foregroundColor(selectedShift.color)
                             )
                     }
                     .padding()
@@ -256,6 +276,74 @@ struct ContentView: View {
             calendar: calendar
         )
     }
+    
+    private func getSelectedShift() -> ShiftType? {
+        return ShiftCalculator.getShiftType(
+            for: selectedDate,
+            startDateString: startDateString,
+            shiftPatternData: shiftPatternData,
+            calendar: calendar
+        )
+    }
+    
+    private func getDateString(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.dateFormat = "yyyy年M月d日 EEEE"
+        return formatter.string(from: date)
+    }
+    
+    private func getLunarDateString(_ date: Date) -> String {
+        let lunar = Calendar(identifier: .chinese)
+        let components = lunar.dateComponents([.year, .month, .day], from: date)
+        guard let lunarMonth = components.month,
+              let lunarDay = components.day else { return "" }
+        
+        let lunarMonths = [
+            "正月", "二月", "三月", "四月", "五月", "六月",
+            "七月", "八月", "九月", "十月", "冬月", "腊月"
+        ]
+        
+        let lunarDays = [
+            "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+            "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
+        ]
+        
+        // 检查是否是节假日
+        if let holiday = ChineseHolidays.getLunarHoliday(lunarMonth: lunarMonth, lunarDay: lunarDay) {
+            return "\(lunarMonths[lunarMonth - 1])\(lunarDays[lunarDay - 1]) (\(holiday))"
+        }
+        
+        return "\(lunarMonths[lunarMonth - 1])\(lunarDays[lunarDay - 1])"
+    }
+    
+    // 添加节日获取函数
+    private func getHolidayString(_ date: Date) -> String? {
+        // 先检查是否是公历节日
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd"
+        let dateString = formatter.string(from: date)
+        if let solarHoliday = ChineseHolidays.solarHolidays[dateString] {
+            return solarHoliday
+        }
+        
+        // 检查是否是特殊节日(如清明)
+        if let specialHoliday = ChineseHolidays.getSpecialHoliday(date: date) {
+            return specialHoliday
+        }
+        
+        // 检查农历节日
+        let lunar = Calendar(identifier: .chinese)
+        let components = lunar.dateComponents([.year, .month, .day], from: date)
+        guard let lunarMonth = components.month,
+              let lunarDay = components.day else { return nil }
+        
+        return ChineseHolidays.getLunarHoliday(
+            lunarMonth: lunarMonth,
+            lunarDay: lunarDay
+        )
+    }
 }
 
 // 日历视图组件
@@ -281,8 +369,8 @@ struct CalendarView: View {
                 }
             }
             
-            // 日历网格
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 15) {
+            // 调整网格间距
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
                 ForEach(Array(getDays().enumerated()), id: \.offset) { index, date in
                     if let date = date {
                         DayView(date: date, 
@@ -333,79 +421,121 @@ struct DayView: View {
     @State private var showingNoteSheet = false
     @State private var noteText = ""
     
+    // 修改节假日计算属性
+    private var holiday: String? {
+        // 先检查是否是公历节日
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd"
+        let dateString = formatter.string(from: date)
+        if let solarHoliday = ChineseHolidays.solarHolidays[dateString] {
+            return solarHoliday
+        }
+        
+        // 检查是否是特殊节日(如清明)
+        if let specialHoliday = ChineseHolidays.getSpecialHoliday(date: date) {
+            return specialHoliday
+        }
+        
+        // 检查农历节日
+        let lunar = Calendar(identifier: .chinese)
+        let components = lunar.dateComponents([.year, .month, .day], from: date)
+        guard let lunarMonth = components.month,
+              let lunarDay = components.day else { return nil }
+        
+        return ChineseHolidays.getLunarHoliday(
+            lunarMonth: lunarMonth,
+            lunarDay: lunarDay
+        )
+    }
+    
+    // 修改农历日期显示,添加份
+    private var lunarDate: String {
+        let lunar = Calendar(identifier: .chinese)
+        let components = lunar.dateComponents([.year, .month, .day], from: date)
+        guard let lunarDay = components.day else { return "" }
+        
+        // 如果是初一,显示农历月份
+        if lunarDay == 1, let lunarMonth = components.month {
+            return getLunarMonth(lunarMonth)
+        }
+        
+        return getLunarDay(lunarDay)
+    }
+    
+    // 添加农历月份转换函数
+    private func getLunarMonth(_ month: Int) -> String {
+        let lunarMonths = [
+            "正月", "二月", "三月", "四月", "五月", "六月",
+            "七月", "八月", "九月", "十月", "冬月", "腊月"
+        ]
+        return lunarMonths[month - 1]
+    }
+    
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
+            // 阳历日期
             Text("\(calendar.component(.day, from: date))")
+                .font(.system(size: 15))
                 .foregroundColor(isInDisplayedMonth ? .primary : .gray)
-            if let shiftType = ShiftCalculator.getShiftType(for: date, startDateString: startDateString, shiftPatternData: shiftPatternData, calendar: calendar) {
+            
+            // 农历或节假日
+            if let holiday = holiday {
+                Text(holiday)
+                    .font(.system(size: 9))
+                    .foregroundColor(.red)
+            } else {
+                Text(lunarDate)
+                    .font(.system(size: 9))
+                    .foregroundColor(.gray)
+            }
+            
+            // 班次显示
+            if let shiftType = ShiftCalculator.getShiftType(
+                for: date,
+                startDateString: startDateString,
+                shiftPatternData: shiftPatternData,
+                calendar: calendar
+            ) {
                 Text(shiftType.name)
-                    .font(.system(size: 10))
+                    .font(.system(size: 11))
                     .foregroundColor(shiftType.color.opacity(isInDisplayedMonth ? 1 : 0.5))
             }
-            if let note = noteManager.getNote(for: date) {
+            
+            // 今日标记小圆点
+            Circle()
+                .fill(Color.blue)
+                .frame(width: 4, height: 4)
+                .opacity(isToday(date) ? 1 : 0)
+            
+            // 备注图标
+            if let _ = noteManager.getNote(for: date) {
                 Image(systemName: "note.text")
-                    .font(.system(size: 8))
+                    .font(.system(size: 9))
                     .foregroundColor(.gray)
             }
         }
-        .frame(height: 40)
+        .frame(height: 60)
         .frame(maxWidth: .infinity)
         .background(
-            Circle()
-                .fill(isSelected(date) && isInDisplayedMonth ? Color.blue.opacity(0.3) : Color.clear)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isSelected(date) && isInDisplayedMonth ? 
+                    Color.blue.opacity(0.1) : 
+                    Color.clear)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(
+                            isSelected(date) && isInDisplayedMonth ? 
+                                Color.blue : 
+                                Color.clear,
+                            lineWidth: 1
+                        )
+                )
         )
-        .overlay(
-            Circle()
-                .stroke(isToday(date) ? Color.blue : Color.clear, lineWidth: 1)
-        )
+        .animation(.easeInOut(duration: 0.2), value: isSelected(date))
         .onTapGesture {
             if isInDisplayedMonth {
                 selectedDate = date
             }
-        }
-        .contextMenu {
-            if let shift = ShiftCalculator.getShiftType(for: date, startDateString: startDateString, shiftPatternData: shiftPatternData, calendar: calendar) {
-                Text("排班: \(shift.name)")
-                let weekday = calendar.component(.weekday, from: date)
-                Text("星期\(["日", "一", "二", "三", "四", "五", "六"][weekday-1])")
-                
-                Divider()
-                
-                Button {
-                    noteText = noteManager.getNote(for: date) ?? ""
-                    showingNoteSheet = true
-                } label: {
-                    Label("添加备注", systemImage: "square.and.pencil")
-                }
-                
-                Button {
-                    NotificationManager.shared.scheduleShiftNotification(for: date, shift: shift)
-                } label: {
-                    Label("设置提醒", systemImage: "bell")
-                }
-            }
-        }
-        .sheet(isPresented: $showingNoteSheet) {
-            NavigationStack {
-                TextEditor(text: $noteText)
-                    .padding()
-                    .navigationTitle("添加备注")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("取消") {
-                                showingNoteSheet = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("保存") {
-                                noteManager.updateNote(noteText, for: date)
-                                showingNoteSheet = false
-                            }
-                        }
-                    }
-            }
-            .presentationDetents([.medium])
         }
     }
     
@@ -415,6 +545,16 @@ struct DayView: View {
     
     private func isToday(_ date: Date) -> Bool {
         calendar.isDate(date, equalTo: Date(), toGranularity: .day)
+    }
+    
+    // 农历日期转换函数
+    private func getLunarDay(_ day: Int) -> String {
+        let lunarDays = [
+            "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+            "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
+        ]
+        return lunarDays[day - 1]
     }
 }
 
@@ -447,6 +587,9 @@ struct MonthYearPicker: View {
                 }
             }
             .pickerStyle(.wheel)
+            .onChange(of: selectedDate) { oldValue, newValue in
+                // 处理日期变化
+            }
             
             // 月份选择器
             Picker("月", selection: Binding(
