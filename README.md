@@ -59,8 +59,8 @@ Copyright © 2024 小护排班
 
 如有问题或建议，请通过以下方式联系：
 
-- Email: [your-email@example.com](mailto:your-email@example.com)
-- GitHub: [项目地址](https://github.com/yourusername/nurse-calendar)
+- Email: [dev@oofo.cc](dev@oofo.cc)
+- GitHub: [项目地址](https://github.com/SirYuxuan/NurseCalendar)
 
 ## 致谢
 
