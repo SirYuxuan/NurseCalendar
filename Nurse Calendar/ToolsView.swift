@@ -13,14 +13,6 @@ struct ToolsView: View {
                         }
                     }
                     
-                    NavigationLink(destination: DosageCalculatorView()) {
-                        HStack {
-                            Image(systemName: "pills")
-                                .foregroundColor(.green)
-                            Text("药物剂量计算")
-                        }
-                    }
-                    
                     NavigationLink(destination: HeartRateCalculatorView()) {
                         HStack {
                             Image(systemName: "heart")

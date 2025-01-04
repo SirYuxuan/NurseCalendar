@@ -54,7 +54,7 @@ struct HeartRateCalculatorView: View {
             }
         }
         .navigationTitle("心率计算器")
-        .onChange(of: formulaType) { _ in
+        .onChange(of: formulaType) { oldValue, newValue in
             if !age.isEmpty {
                 calculateHeartRate()
             }
