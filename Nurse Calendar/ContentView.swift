@@ -20,17 +20,17 @@ struct ContentView: View {
                 }
                 .tag(0)
 
-            StudyView()
+            MedicationReminderView()
                 .tabItem {
-                    Image(systemName: "book")
-                    Text("学习")
+                    Image(systemName: "pills")
+                    Text("用药")
                 }
                 .tag(1)
 
-            ProfileView()
+            ToolsView()
                 .tabItem {
-                    Image(systemName: "person")
-                    Text("我的")
+                    Image(systemName: "wrench.and.screwdriver")
+                    Text("工具")
                 }
                 .tag(2)
         }
