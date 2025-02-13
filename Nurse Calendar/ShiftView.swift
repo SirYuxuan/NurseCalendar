@@ -1,24 +1,82 @@
 import SwiftUI
 import Foundation
 
+// MARK: - 🎨 视觉效果
+// 这个扩展本来想用来做一些炫酷的动画，但是后来觉得还是算了
+private extension View {
+    func shimmer() -> some View {
+        self.modifier(ShimmerEffect())
+    }
+}
+
+// 这个是动画效果的modifier，但是最后没用上
+private struct ShimmerEffect: ViewModifier {
+    @State private var phase: CGFloat = 0
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                GeometryReader { geometry in
+                    LinearGradient(
+                        gradient: Gradient(colors: [.clear, .white.opacity(0.5), .clear]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: geometry.size.width * 3)
+                    .offset(x: -geometry.size.width + (phase * geometry.size.width))
+                }
+            )
+            .mask(content)
+            .onAppear {
+                withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
+                    phase = 2
+                }
+            }
+    }
+}
+
+// MARK: - 🏥 护士排班视图
+/// 这是一个用于显示护士排班信息的主视图
+/// 包含了日历显示、排班统计等功能
+/// 由一个不知道多少个深夜才写完的程序员完成 😴
 struct ShiftView: View {
-    @State private var selectedDate = Date()
-    @State private var slideOffset: CGFloat = 0
-    @State private var dragOffset: CGFloat = 0
+    // MARK: - 📱 界面状态
+    @State private var selectedDate = Date()  // 选中的日期，默认今天
+    @State private var slideOffset: CGFloat = 0  // 滑动偏移量
+    @State private var dragOffset: CGFloat = 0  // 拖拽偏移量
     @AppStorage("startDate") private var startDateString: String = Date().ISO8601Format()
     @AppStorage("shiftPattern") private var shiftPatternData: Data = try! JSONEncoder().encode(ShiftType.defaultPattern)
     @State private var showingDatePicker = false
     
+    // 这是一个永远不会用到的计数器，但是看起来很酷
+    private var unusedCounter: Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: Date())
+        return (components.year ?? 0) * 10000 + (components.month ?? 0) * 100 + (components.day ?? 0)
+    }
+    
+    // 中国特色的日历实例 🇨🇳
     private let calendar: Calendar = {
         var calendar = Calendar.current
         calendar.locale = Locale(identifier: "zh_CN")
         return calendar
     }()
     
+    // 这个函数可能永远用不到，但是写出来很有意思
+    private func calculateLuckyNumber() -> Int {
+        let today = Date()
+        let components = calendar.dateComponents([.year, .month, .day], from: today)
+        return ((components.year ?? 2024) % 100 + (components.month ?? 1) * 2 + (components.day ?? 1) * 3) % 10
+    }
+    
+    // 这是一个永远不会显示的随机表情数组
+    private let unusedEmojis = ["🌞", "🌙", "🌄", "😴", "💪", "🏃‍♀️", "🚶‍♀️", "🧑‍⚕️"]
+    
+    // MARK: - 🎨 视图构建
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                // 今日排班卡片
+                // 今日排班卡片 - 这里本来想加个动画的，但是懒得做了 😅
                 if let selectedShift = getSelectedShift() {
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
@@ -65,7 +123,7 @@ struct ShiftView: View {
                     .padding(.horizontal)
                 }
                 
-                // 统计信息
+                // 统计信息 - 本来想加个饼图，但是觉得太花哨了
                 HStack(spacing: 20) {
                     ForEach(ShiftType.predefinedCases, id: \.self) { shift in
                         let count = countShifts(type: shift)
@@ -135,7 +193,7 @@ struct ShiftView: View {
                 }
                 .padding(.horizontal)
                 
-                // 日历容器
+                // 日历容器 - 这个滑动效果写了好久，但是感觉还是不够丝滑
                 GeometryReader { geometry in
                     ZStack {
                         HStack(spacing: 0) {
@@ -231,14 +289,28 @@ struct ShiftView: View {
         }
     }
     
-    private func getPreviousMonth() -> Date {
-        calendar.date(byAdding: .month, value: -1, to: selectedDate) ?? selectedDate
+    // MARK: - 🛠 辅助函数
+    
+    // 这个函数用来计算今天的幸运颜色，但是最后没用上
+    private func getLuckyColor() -> Color {
+        let colors: [Color] = [.red, .blue, .green, .yellow, .purple, .orange]
+        let luckyIndex = calculateLuckyNumber() % colors.count
+        return colors[luckyIndex]
     }
     
-    private func getNextMonth() -> Date {
-        calendar.date(byAdding: .month, value: 1, to: selectedDate) ?? selectedDate
+    // 获取月份的中文名称，但是后来觉得直接用数字更好
+    private func getChineseMonthName(_ month: Int) -> String {
+        let names = ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"]
+        return names[month - 1]
     }
     
+    // MARK: - 🎯 统计相关
+    
+    /// 计算指定类型班次的数量
+    /// - Parameter type: 班次类型
+    /// - Returns: 该类型班次在当月的总数
+    /// - Note: 这个函数写得有点复杂，但是能用就行 😅
     private func countShifts(type: ShiftType) -> Int {
         let start = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedDate))!
         let range = calendar.range(of: .day, in: .month, for: start)!
@@ -254,6 +326,45 @@ struct ShiftView: View {
                 calendar: calendar
             )
         }.filter { $0 == type }.count
+    }
+    
+    // MARK: - 📅 日期处理
+    
+    /// 获取农历日期字符串
+    /// - Parameter date: 要转换的日期
+    /// - Returns: 格式化后的农历日期字符串
+    /// - Note: 农历转换真的很麻烦，但是必须要有这个功能 🤔
+    private func getLunarDateString(_ date: Date) -> String {
+        let lunar = Calendar(identifier: .chinese)
+        let components = lunar.dateComponents([.year, .month, .day], from: date)
+        guard let lunarMonth = components.month,
+              let lunarDay = components.day else { return "" }
+        
+        let lunarMonths = [
+            "正月", "二月", "三月", "四月", "五月", "六月",
+            "七月", "八月", "九月", "十月", "冬月", "腊月"
+        ]
+        
+        let lunarDays = [
+            "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+            "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
+        ]
+        
+        // 检查是否是节假日
+        if let holiday = ChineseHolidays.getLunarHoliday(lunarMonth: lunarMonth, lunarDay: lunarDay) {
+            return "\(lunarMonths[lunarMonth - 1])\(lunarDays[lunarDay - 1]) (\(holiday))"
+        }
+        
+        return "\(lunarMonths[lunarMonth - 1])\(lunarDays[lunarDay - 1])"
+    }
+    
+    private func getPreviousMonth() -> Date {
+        calendar.date(byAdding: .month, value: -1, to: selectedDate) ?? selectedDate
+    }
+    
+    private func getNextMonth() -> Date {
+        calendar.date(byAdding: .month, value: 1, to: selectedDate) ?? selectedDate
     }
     
     private func isToday(_ date: Date) -> Bool {
@@ -283,31 +394,6 @@ struct ShiftView: View {
         formatter.locale = Locale(identifier: "zh_CN")
         formatter.dateFormat = "yyyy年M月d日 EEEE"
         return formatter.string(from: date)
-    }
-    
-    private func getLunarDateString(_ date: Date) -> String {
-        let lunar = Calendar(identifier: .chinese)
-        let components = lunar.dateComponents([.year, .month, .day], from: date)
-        guard let lunarMonth = components.month,
-              let lunarDay = components.day else { return "" }
-        
-        let lunarMonths = [
-            "正月", "二月", "三月", "四月", "五月", "六月",
-            "七月", "八月", "九月", "十月", "冬月", "腊月"
-        ]
-        
-        let lunarDays = [
-            "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
-            "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
-            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
-        ]
-        
-        // 检查是否是节假日
-        if let holiday = ChineseHolidays.getLunarHoliday(lunarMonth: lunarMonth, lunarDay: lunarDay) {
-            return "\(lunarMonths[lunarMonth - 1])\(lunarDays[lunarDay - 1]) (\(holiday))"
-        }
-        
-        return "\(lunarMonths[lunarMonth - 1])\(lunarDays[lunarDay - 1])"
     }
     
     // 添加节日获取函数
