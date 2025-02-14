@@ -75,162 +75,172 @@ struct ShiftView: View {
     // MARK: - 🎨 视图构建
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                // 今日排班卡片 - 这里本来想加个动画的，但是懒得做了 😅
-                if let selectedShift = getSelectedShift() {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 8) {
-                            // 日期显示
-                            Text(getDateString(selectedDate))
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            
-                            // 农历日期
-                            Text(getLunarDateString(selectedDate))
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            
-                            // 排班和节日显示
-                            HStack(spacing: 4) {
-                                Text(selectedShift.name)
-                                    .font(.title2)
-                                    .foregroundColor(selectedShift.color)
-                                    .bold()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    // 今日排班卡片 - 这里本来想加个动画的，但是懒得做了 😅
+                    if let selectedShift = getSelectedShift() {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 8) {
+                                // 日期显示
+                                Text(getDateString(selectedDate))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                                 
-                                if let holiday = getHolidayString(selectedDate) {
-                                    Text("·\(holiday)")
-                                        .font(.title3)
-                                        .foregroundColor(.red)
+                                // 农历日期
+                                Text(getLunarDateString(selectedDate))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                // 排班和节日显示
+                                HStack(spacing: 4) {
+                                    Text(selectedShift.name)
+                                        .font(.title)
+                                        .foregroundColor(selectedShift.color)
+                                        .fontWeight(.bold)
+                                    
+                                    if let holiday = getHolidayString(selectedDate) {
+                                        Text("·\(holiday)")
+                                            .font(.title3)
+                                            .foregroundColor(.red)
+                                    }
                                 }
+                            }
+                            Spacer()
+                            
+                            // 班次图标
+                            ZStack {
+                                Circle()
+                                    .fill(selectedShift.color.opacity(0.15))
+                                    .frame(width: 60, height: 60)
+                                
+                                Image(systemName: getShiftIcon(for: selectedShift))
+                                    .font(.system(size: 24))
+                                    .foregroundColor(selectedShift.color)
+                            }
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 2)
+                        )
+                        .padding(.horizontal)
+                    }
+                    
+                    // 统计信息
+                    HStack(spacing: 20) {
+                        ForEach(ShiftType.predefinedCases, id: \.self) { shift in
+                            let count = countShifts(type: shift)
+                            VStack {
+                                Text("\(count)")
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundColor(shift.color)
+                                Text(shift.name)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(shift.color.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // 月份显示
+                    HStack {
+                        let year = calendar.component(.year, from: selectedDate)
+                        let month = calendar.component(.month, from: selectedDate)
+                        Button {
+                            showingDatePicker = true
+                        } label: {
+                            HStack {
+                                Text("\(String(format: "%d", year))年\(month)月")
+                                    .font(.title)
+                                    .bold()
+                                    .foregroundColor(.primary)
+                                Image(systemName: "chevron.down")
+                                    .foregroundColor(.blue)
                             }
                         }
                         Spacer()
-                        Circle()
-                            .fill(selectedShift.color.opacity(0.2))
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image("hellokitty")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .padding(8)
-                                    .foregroundColor(selectedShift.color)
-                            )
-                    }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                    .padding(.horizontal)
-                }
-                
-                // 统计信息 - 本来想加个饼图，但是觉得太花哨了
-                HStack(spacing: 20) {
-                    ForEach(ShiftType.predefinedCases, id: \.self) { shift in
-                        let count = countShifts(type: shift)
-                        VStack {
-                            Text("\(count)")
-                                .font(.title3)
-                                .bold()
-                                .foregroundColor(shift.color)
-                            Text(shift.name)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(shift.color.opacity(0.1))
-                        .cornerRadius(8)
-                    }
-                }
-                .padding(.horizontal)
-                
-                // 月份显示
-                HStack {
-                    let year = calendar.component(.year, from: selectedDate)
-                    let month = calendar.component(.month, from: selectedDate)
-                    Button {
-                        showingDatePicker = true
-                    } label: {
-                        HStack {
-                            Text("\(String(format: "%d", year))年\(month)月")
-                                .font(.title)
-                                .bold()
-                                .foregroundColor(.primary)
-                            Image(systemName: "chevron.down")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                    Spacer()
-                    HStack(spacing: 20) {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                slideOffset = UIScreen.main.bounds.width
-                                selectedDate = getPreviousMonth()
-                                dragOffset = 0
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                slideOffset = 0
-                            }
-                        } label: {
-                            Image(systemName: "chevron.left")
-                                .foregroundColor(.blue)
-                        }
-                        
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                slideOffset = -UIScreen.main.bounds.width
-                                selectedDate = getNextMonth()
-                                dragOffset = 0
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                slideOffset = 0
-                            }
-                        } label: {
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-                
-                // 日历容器 - 这个滑动效果写了好久，但是感觉还是不够丝滑
-                GeometryReader { geometry in
-                    ZStack {
-                        HStack(spacing: 0) {
-                            CalendarView(date: getPreviousMonth(), selectedDate: $selectedDate)
-                                .frame(width: geometry.size.width)
-                            
-                            CalendarView(date: selectedDate, selectedDate: $selectedDate)
-                                .frame(width: geometry.size.width)
-                            
-                            CalendarView(date: getNextMonth(), selectedDate: $selectedDate)
-                                .frame(width: geometry.size.width)
-                        }
-                        .offset(x: -geometry.size.width + slideOffset + dragOffset)
-                    }
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                dragOffset = value.translation.width
-                            }
-                            .onEnded { value in
-                                let threshold = geometry.size.width / 3
+                        HStack(spacing: 20) {
+                            Button {
                                 withAnimation(.easeInOut(duration: 0.3)) {
-                                    if value.translation.width > threshold {
-                                        slideOffset = geometry.size.width
-                                        selectedDate = getPreviousMonth()
-                                    } else if value.translation.width < -threshold {
-                                        slideOffset = -geometry.size.width
-                                        selectedDate = getNextMonth()
-                                    }
+                                    slideOffset = UIScreen.main.bounds.width
+                                    selectedDate = getPreviousMonth()
                                     dragOffset = 0
                                 }
-                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     slideOffset = 0
                                 }
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .foregroundColor(.blue)
                             }
-                    )
+                            
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    slideOffset = -UIScreen.main.bounds.width
+                                    selectedDate = getNextMonth()
+                                    dragOffset = 0
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    slideOffset = 0
+                                }
+                            } label: {
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // 日历容器 - 这个滑动效果写了好久，但是感觉还是不够丝滑
+                    GeometryReader { geometry in
+                        ZStack {
+                            HStack(spacing: 0) {
+                                CalendarView(date: getPreviousMonth(), selectedDate: $selectedDate)
+                                    .frame(width: geometry.size.width)
+                                
+                                CalendarView(date: selectedDate, selectedDate: $selectedDate)
+                                    .frame(width: geometry.size.width)
+                                
+                                CalendarView(date: getNextMonth(), selectedDate: $selectedDate)
+                                    .frame(width: geometry.size.width)
+                            }
+                            .offset(x: -geometry.size.width + slideOffset + dragOffset)
+                        }
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    dragOffset = value.translation.width
+                                }
+                                .onEnded { value in
+                                    let threshold = geometry.size.width / 3
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        if value.translation.width > threshold {
+                                            slideOffset = geometry.size.width
+                                            selectedDate = getPreviousMonth()
+                                        } else if value.translation.width < -threshold {
+                                            slideOffset = -geometry.size.width
+                                            selectedDate = getNextMonth()
+                                        }
+                                        dragOffset = 0
+                                    }
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        slideOffset = 0
+                                    }
+                                }
+                        )
+                    }
+                    .frame(height: UIScreen.main.bounds.width * 1.1)  // 设置固定高度比例
+                    
+                    // 底部留白，防止内容被 TabBar 遮挡
+                    Spacer()
+                        .frame(height: 20)
                 }
             }
             .toolbar {
@@ -290,6 +300,17 @@ struct ShiftView: View {
     }
     
     // MARK: - 🛠 辅助函数
+    
+    // 获取班次对应的图标
+    private func getShiftIcon(for shift: ShiftType) -> String {
+        switch shift {
+        case .day: return "sun.max.fill"
+        case .night: return "moon.stars.fill"
+        case .afterNight: return "sunrise.fill"
+        case .rest: return "bed.double.fill"
+        case .custom: return "calendar"
+        }
+    }
     
     // 这个函数用来计算今天的幸运颜色，但是最后没用上
     private func getLuckyColor() -> Color {

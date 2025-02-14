@@ -150,45 +150,54 @@ struct MedicationReminderView: View {
     var body: some View {
         NavigationStack {
             List {
-                if reminderManager.reminders.isEmpty {
-                    Text("还没有添加任何用药提醒")
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .listRowBackground(Color.clear)
-                } else {
-                    ForEach(reminderManager.reminders) { reminder in
-                        ReminderRow(reminder: reminder)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                selectedReminder = reminder
-                            }
-                            .swipeActions(edge: .trailing) {
-                                if !reminder.isCompleted {
-                                    Button {
-                                        reminderManager.markAsCompleted(reminder)
-                                    } label: {
-                                        Label("完成", systemImage: "checkmark")
-                                    }
-                                    .tint(.green)
-                                }
-                                Button(role: .destructive) {
-                                    reminderManager.deleteReminder(reminder)
-                                } label: {
-                                    Label("删除", systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .leading) {
-                                Button {
+                Section {
+                    if reminderManager.reminders.isEmpty {
+                        Text("还没有添加任何用药提醒")
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .listRowBackground(Color.clear)
+                    } else {
+                        ForEach(reminderManager.reminders) { reminder in
+                            ReminderRow(reminder: reminder)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
                                     selectedReminder = reminder
-                                } label: {
-                                    Label("编辑", systemImage: "pencil")
                                 }
-                                .tint(.orange)
-                            }
+                                .swipeActions(edge: .trailing) {
+                                    if !reminder.isCompleted {
+                                        Button {
+                                            reminderManager.markAsCompleted(reminder)
+                                        } label: {
+                                            Label("完成", systemImage: "checkmark.circle.fill")
+                                        }
+                                        .tint(.green)
+                                    }
+                                    Button(role: .destructive) {
+                                        reminderManager.deleteReminder(reminder)
+                                    } label: {
+                                        Label("删除", systemImage: "trash.circle.fill")
+                                    }
+                                }
+                        }
                     }
                 }
+                
+                Section {
+                    Text("安全提示")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    Text("• 此功能仅用于辅助提醒，不能替代专业医疗判断")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("• 具体用药请以医嘱为准")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("• 如有疑问请及时咨询主管医生")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
-            .navigationTitle("药物提醒")
+            .navigationTitle("用药提醒")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {

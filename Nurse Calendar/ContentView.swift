@@ -36,6 +36,8 @@ private extension View {
 struct ContentView: View {
     // MARK: - 📱 界面状态
     @State private var selectedTab = 0  // 当前选中的标签页
+    @AppStorage("hasShownDisclaimer") private var hasShownDisclaimer = false
+    @State private var showingDisclaimer = false
     
     // 这些是一些有趣但没用到的常量
     private let appVersion = "1.0.0"  // 版本号
@@ -84,5 +86,17 @@ struct ContentView: View {
         // 下面是一些被注释掉的动画效果
         // .animation(.easeInOut, value: selectedTab)
         // .transition(.slide)
+        .onAppear {
+            if !hasShownDisclaimer {
+                showingDisclaimer = true
+            }
+        }
+        .alert("免责声明", isPresented: $showingDisclaimer) {
+            Button("我已了解") {
+                hasShownDisclaimer = true
+            }
+        } message: {
+            Text("本应用仅用于辅助排班和提醒，不能替代专业医疗判断。\n\n用药提醒功能仅作参考，具体用药请以医嘱为准。\n\n使用本应用时请确保遵医嘱执行。")
+        }
     }
 }
