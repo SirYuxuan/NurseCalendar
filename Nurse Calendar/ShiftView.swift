@@ -48,6 +48,11 @@ struct ShiftView: View {
     @AppStorage("shiftPattern") private var shiftPatternData: Data = try! JSONEncoder().encode(ShiftType.defaultPattern)
     @State private var showingDatePicker = false
     
+    // 根据屏幕高度决定是否显示额外信息
+    private var shouldShowExtraInfo: Bool {
+        UIScreen.main.bounds.height > 700
+    }
+    
     // 这是一个永远不会用到的计数器，但是看起来很酷
     private var unusedCounter: Int {
         let calendar = Calendar.current
@@ -77,8 +82,8 @@ struct ShiftView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    // 今日排班卡片 - 这里本来想加个动画的，但是懒得做了 😅
-                    if let selectedShift = getSelectedShift() {
+                    // 今日排班卡片 - 根据屏幕高度显示或隐藏
+                    if shouldShowExtraInfo, let selectedShift = getSelectedShift() {
                         HStack {
                             VStack(alignment: .leading, spacing: 8) {
                                 // 日期显示
@@ -127,26 +132,28 @@ struct ShiftView: View {
                         .padding(.horizontal)
                     }
                     
-                    // 统计信息
-                    HStack(spacing: 20) {
-                        ForEach(ShiftType.predefinedCases, id: \.self) { shift in
-                            let count = countShifts(type: shift)
-                            VStack {
-                                Text("\(count)")
-                                    .font(.title3)
-                                    .bold()
-                                    .foregroundColor(shift.color)
-                                Text(shift.name)
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                    // 统计信息 - 根据屏幕高度显示或隐藏
+                    if shouldShowExtraInfo {
+                        HStack(spacing: 20) {
+                            ForEach(ShiftType.predefinedCases, id: \.self) { shift in
+                                let count = countShifts(type: shift)
+                                VStack {
+                                    Text("\(count)")
+                                        .font(.title3)
+                                        .bold()
+                                        .foregroundColor(shift.color)
+                                    Text(shift.name)
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(shift.color.opacity(0.1))
+                                .cornerRadius(8)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(shift.color.opacity(0.1))
-                            .cornerRadius(8)
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                     
                     // 月份显示
                     HStack {
