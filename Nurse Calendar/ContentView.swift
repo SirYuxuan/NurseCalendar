@@ -67,14 +67,12 @@ struct ContentView: View {
                     Label("排班", systemImage: "calendar")
                 }
                 .tag(0)
-                // .badge("New")  // 本来想加个角标的，但是觉得不需要
 
-            MedicationReminderView()
-                .tabItem {
-                    Label("用药", systemImage: "pills.circle.fill")
-                }
-                .tag(1)
-                // .badge(5)  // 这里本来想显示未完成的提醒数量
+            // MedicationReminderView() // 隐藏用药模块
+            //     .tabItem {
+            //         Label("用药", systemImage: "pills.circle.fill")
+            //     }
+            //     .tag(1)
 
             ToolsView()
                 .tabItem {
