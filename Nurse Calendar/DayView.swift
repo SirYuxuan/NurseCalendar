@@ -25,12 +25,12 @@ struct DayView: View {
     
     // MARK: - 🎨 界面
     var body: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 1) {
             // 日期数字显示
             Text("\(calendar.component(.day, from: date))")
                 .font(.system(size: 15))
                 .foregroundColor(isInDisplayedMonth ? .primary : .gray)
-            
+
             // 农历或节日显示
             if let holiday = holiday {
                 Text(holiday)
@@ -41,7 +41,7 @@ struct DayView: View {
                     .font(.system(size: 9))
                     .foregroundColor(.gray)
             }
-            
+
             // 班次信息显示
             if let shiftType = ShiftCalculator.getShiftType(
                 for: date,
@@ -53,15 +53,13 @@ struct DayView: View {
                     .font(.system(size: 11))
                     .foregroundColor(shiftType.color.opacity(isInDisplayedMonth ? 1 : 0.5))
             }
-            
-            // 今日指示点
-            Circle()
-                .fill(Color.blue)
-                .frame(width: 4, height: 4)
-                .opacity(isToday(date) ? 1 : 0)
-            
-            // 备注指示器
-            if let _ = noteManager.getNote(for: date) {
+
+            // 今日指示点或备注指示器
+            if isToday(date) {
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: 4, height: 4)
+            } else if noteManager.getNote(for: date) != nil {
                 Image(systemName: "note.text")
                     .font(.system(size: 9))
                     .foregroundColor(.gray)
@@ -72,22 +70,34 @@ struct DayView: View {
             //     .font(.system(size: 8))
             //     .opacity(0.5)
         }
-        .frame(height: 60)
+        .frame(height: 58)
         .frame(maxWidth: .infinity)
+        .padding(1)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isSelected(date) && isInDisplayedMonth ? 
-                    Color.blue.opacity(0.1) : 
-                    Color.clear)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(
-                            isSelected(date) && isInDisplayedMonth ? 
-                                Color.blue : 
-                                Color.clear,
-                            lineWidth: 1
-                        )
-                )
+            ZStack {
+                // Hello Kitty 背景图（仅今天显示）
+                if isToday(date) {
+                    Image("hellokitty")
+                        .resizable()
+                        .scaledToFit()
+                        .opacity(0.25)
+                        .padding(6)
+                }
+
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isSelected(date) && isInDisplayedMonth ?
+                        Color.blue.opacity(0.1) :
+                        Color.clear)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .strokeBorder(
+                                isSelected(date) && isInDisplayedMonth ?
+                                    Color.blue :
+                                    Color.clear,
+                                lineWidth: 1
+                            )
+                    )
+            }
         )
         .animation(.easeInOut(duration: 0.2), value: isSelected(date))
         .onTapGesture {

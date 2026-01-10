@@ -23,12 +23,12 @@ struct MonthYearPicker: View {
                 }
             )) {
                 ForEach(years, id: \.self) { year in
-                    Text("\(year)年")
+                    Text(String(format: "%d年", year))
                         .tag(year)
                 }
             }
             .pickerStyle(.wheel)
-            
+
             // 月份选择器
             Picker("月", selection: Binding(
                 get: {
@@ -43,7 +43,7 @@ struct MonthYearPicker: View {
                 }
             )) {
                 ForEach(months, id: \.self) { month in
-                    Text("\(month)月")
+                    Text(String(format: "%d月", month))
                         .tag(month)
                 }
             }

@@ -31,7 +31,7 @@ struct CalendarView: View {
                                isInDisplayedMonth: isInCurrentMonth(date))
                     } else {
                         Text("")
-                            .frame(height: 40)
+                            .frame(height: 58)
                             .frame(maxWidth: .infinity)
                     }
                 }
