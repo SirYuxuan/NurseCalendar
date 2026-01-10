@@ -299,7 +299,7 @@ struct AlarmView: View {
         let content = UNMutableNotificationContent()
         content.title = "皮试提醒"
         content.body = "请查看患者皮试结果"
-        content.sound = .default
+        content.sound = selectedSound.notificationSound
         // 不设置角标
 
         // 设置为时间敏感,确保能够突破勿扰模式
