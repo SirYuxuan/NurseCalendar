@@ -49,57 +49,26 @@ struct SettingsView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundColor(.blue)
-                        Text("设置说明")
-                            .font(.headline)
-                    }
-
-                    Text("1. 选择您的第一个班次日期")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    Text("2. 设置您的排班循环顺序")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    Text("3. 系统将自动计算后续排班")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.vertical, 8)
-            }
-
-            Section {
-                DatePicker("第一个班次日期",
+                DatePicker("起始日期",
                           selection: $startDate,
                           displayedComponents: [.date])
                     .environment(\.locale, Locale(identifier: "zh_CN"))
                     .onChange(of: startDate) { oldValue, newValue in
                         startDateString = newValue.ISO8601Format()
                     }
-
-                HStack {
-                    Image(systemName: "calendar")
-                        .foregroundColor(.orange)
-                    Text("从这天开始按照下方顺序循环排班")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            } header: {
-                Text("起始日期")
+            } footer: {
+                Text("从这天开始按照下方顺序循环排班")
+                    .font(.caption)
             }
 
-            Section {
+            Section("排班设置") {
                 Button {
                     showingTemplates = true
                 } label: {
                     HStack {
                         Image(systemName: "square.grid.2x2.fill")
                             .foregroundColor(.purple)
-                        Text("使用排班模板")
+                        Text("使用模板")
                             .foregroundColor(.primary)
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -114,7 +83,7 @@ struct SettingsView: View {
                     HStack {
                         Image(systemName: "plus.circle.fill")
                             .foregroundColor(.green)
-                        Text("添加单个班次")
+                        Text("添加班次")
                             .foregroundColor(.primary)
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -122,48 +91,34 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-            } header: {
-                Text("快速设置")
             }
 
             Section {
                 if shiftPattern.isEmpty {
-                    VStack(spacing: 8) {
+                    VStack(spacing: 6) {
                         Image(systemName: "calendar.badge.exclamationmark")
-                            .font(.system(size: 40))
+                            .font(.system(size: 32))
                             .foregroundColor(.gray)
-                        Text("还没有设置排班顺序")
-                            .foregroundColor(.gray)
-                        Text("请使用上方模板或手动添加")
+                        Text("请使用上方模板或添加班次")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 20)
+                    .padding(.vertical, 12)
                 } else {
                     ForEach(Array(shiftPattern.enumerated()), id: \.offset) { index, shift in
-                        HStack(spacing: 12) {
-                            Text("\(index + 1)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .frame(width: 24)
-
+                        HStack(spacing: 10) {
                             Circle()
                                 .fill(shift.color)
-                                .frame(width: 12, height: 12)
+                                .frame(width: 10, height: 10)
 
                             Text(shift.name)
                                 .foregroundColor(shift.color)
-                                .fontWeight(.medium)
+                                .font(.subheadline)
 
                             Spacer()
-
-                            if editMode == .active {
-                                Image(systemName: "line.3.horizontal")
-                                    .foregroundColor(.secondary)
-                            }
                         }
-                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
                     }
                     .onMove { from, to in
                         shiftPattern.move(fromOffsets: from, toOffset: to)
@@ -176,37 +131,23 @@ struct SettingsView: View {
                 }
             } header: {
                 HStack {
-                    Text("排班循环顺序")
+                    Text("循环顺序")
+                    if !shiftPattern.isEmpty {
+                        Text("(\(shiftPattern.count)天)")
+                            .foregroundColor(.secondary)
+                    }
                     Spacer()
                     if !shiftPattern.isEmpty {
                         Button(editMode == .active ? "完成" : "编辑") {
-                            withAnimation {
-                                editMode = editMode == .active ? .inactive : .active
-                            }
+                            editMode = editMode == .active ? .inactive : .active
                         }
                         .font(.caption)
                     }
                 }
             } footer: {
-                if !shiftPattern.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("循环周期：\(shiftPattern.count) 天")
-                            .font(.caption)
-                        Text(editMode == .active ? "拖动调整顺序，左滑删除" : "点击右上角「编辑」可调整顺序")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-
-            if !shiftPattern.isEmpty {
-                Section {
-                    ShiftPreviewView(
-                        startDate: startDate,
-                        pattern: shiftPattern
-                    )
-                } header: {
-                    Text("排班预览")
+                if !shiftPattern.isEmpty && editMode == .active {
+                    Text("拖动调整顺序，左滑删除")
+                        .font(.caption)
                 }
             }
         }
@@ -218,9 +159,6 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingTemplates) {
             ShiftTemplatePickerView(shiftPattern: $shiftPattern)
-        }
-        .onChange(of: shiftPattern) { oldValue, newValue in
-            savePattern()
         }
         .onAppear {
             loadSavedData()
@@ -319,58 +257,48 @@ struct ShiftTemplatePickerView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    Text("选择一个常用的排班模板，快速完成设置")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .listRowBackground(Color.clear)
-                }
+                ForEach(Array(ShiftTemplate.templates.enumerated()), id: \.offset) { index, template in
+                    Button {
+                        shiftPattern = template.pattern
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: template.icon)
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                                .frame(width: 32)
 
-                Section("常用模板") {
-                    ForEach(Array(ShiftTemplate.templates.enumerated()), id: \.offset) { index, template in
-                        Button {
-                            withAnimation {
-                                shiftPattern = template.pattern
-                            }
-                            dismiss()
-                        } label: {
-                            HStack(spacing: 16) {
-                                Image(systemName: template.icon)
-                                    .font(.title2)
-                                    .foregroundColor(.blue)
-                                    .frame(width: 40)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(template.name)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(template.name)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-
-                                    Text(template.description)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-
-                                    HStack(spacing: 4) {
-                                        ForEach(template.pattern, id: \.self) { shift in
-                                            Circle()
-                                                .fill(shift.color)
-                                                .frame(width: 8, height: 8)
-                                        }
-                                    }
-                                    .padding(.top, 4)
-                                }
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
+                                Text(template.description)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+
+                                HStack(spacing: 3) {
+                                    ForEach(template.pattern, id: \.self) { shift in
+                                        Circle()
+                                            .fill(shift.color)
+                                            .frame(width: 6, height: 6)
+                                    }
+                                }
+                                .padding(.top, 2)
                             }
-                            .padding(.vertical, 8)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
+                        .padding(.vertical, 4)
                     }
                 }
             }
-            .navigationTitle("选择排班模板")
+            .navigationTitle("选择模板")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

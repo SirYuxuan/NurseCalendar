@@ -13,6 +13,16 @@ struct DayView: View {
     @AppStorage("startDate") private var startDateString: String = Date().ISO8601Format()
     @AppStorage("shiftPattern") private var shiftPatternData: Data = try! JSONEncoder().encode(ShiftType.defaultPattern)
     @StateObject private var noteManager = NoteManager()
+
+    // 缓存班次类型，避免重复计算
+    private var shiftType: ShiftType? {
+        ShiftCalculator.getShiftType(
+            for: date,
+            startDateString: startDateString,
+            shiftPatternData: shiftPatternData,
+            calendar: calendar
+        )
+    }
     
     // 这是一个用来存放表情符号的数组，本来想用来显示心情的，但是后来觉得太花哨了
     private let moodEmojis = ["😊", "😴", "😫", "🤔", "😅", "🥳", "😎"]
@@ -43,15 +53,10 @@ struct DayView: View {
             }
 
             // 班次信息显示
-            if let shiftType = ShiftCalculator.getShiftType(
-                for: date,
-                startDateString: startDateString,
-                shiftPatternData: shiftPatternData,
-                calendar: calendar
-            ) {
-                Text(shiftType.name)
+            if let shift = shiftType {
+                Text(shift.name)
                     .font(.system(size: 11))
-                    .foregroundColor(shiftType.color.opacity(isInDisplayedMonth ? 1 : 0.5))
+                    .foregroundColor(shift.color.opacity(isInDisplayedMonth ? 1 : 0.5))
             }
 
             // 今日指示点或备注指示器
