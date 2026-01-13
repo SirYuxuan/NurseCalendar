@@ -7,20 +7,6 @@ struct ToolsView: View {
         NavigationStack {
             List {
                 Section("医疗计算") {
-                    NavigationLink(destination: InsulinCalculatorView()) {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("胰岛素换算")
-                                Text("IU 单位与 ml 容量")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "cross.fill")
-                                .foregroundColor(.purple)
-                        }
-                    }
-
                     NavigationLink(destination: BMICalculatorView()) {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {

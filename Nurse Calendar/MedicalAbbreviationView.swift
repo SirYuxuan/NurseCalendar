@@ -168,6 +168,41 @@ struct MedicalAbbreviationView: View {
                         AbbreviationGrid(items: filteredAbbreviations)
                             .padding(.top, 8)
                     }
+
+                    // 参考资料
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("参考资料")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+
+                        Text("医嘱缩写来源于临床护理标准用语和医学教材：")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Link("• 中华人民共和国药典", destination: URL(string: "http://www.nhc.gov.cn/")!)
+                                .font(.caption)
+
+                            Link("• 临床护理实践指南", destination: URL(string: "http://www.nhc.gov.cn/")!)
+                                .font(.caption)
+
+                            Text("• 《基础护理学》护理专业教材")
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                        }
+
+                        Text("注：医嘱缩写仅供学习参考，实际使用以所在医疗机构规范为准。")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                            .padding(.top, 4)
+                    }
+                    .padding(16)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 24)
+                    .padding(.bottom, 16)
                 }
             }
         }

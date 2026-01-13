@@ -52,6 +52,39 @@ struct HeartRateCalculatorView: View {
             if let gulatiMaxHeartRate = gulatiMaxHeartRate {
                 Text("Gulati公式最大心率: \(gulatiMaxHeartRate) bpm")
             }
+
+            Section(header: Text("参考资料")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("最大心率计算公式参考以下医学研究：")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("• 标准公式：220 - 年龄")
+                            .font(.caption)
+                        Text("• Tanaka公式：208 - (0.7 × 年龄)")
+                            .font(.caption)
+                        Text("  适用于成年人，更精确")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Text("• Gulati公式：206 - (0.88 × 年龄)")
+                            .font(.caption)
+                        Text("  专门针对女性研究得出")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Link("美国心脏协会 - 目标心率与估算最大心率", destination: URL(string: "https://www.heart.org/en/healthy-living/fitness/fitness-basics/target-heart-rates")!)
+                        .font(.caption)
+                        .padding(.top, 4)
+
+                    Text("参考文献：Tanaka H, et al. (2001). Age-predicted maximal heart rate revisited. J Am Coll Cardiol.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                }
+                .padding(.vertical, 4)
+            }
         }
         .navigationTitle("心率计算器")
         .onChange(of: formulaType) { oldValue, newValue in

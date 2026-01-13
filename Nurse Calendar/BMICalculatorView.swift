@@ -41,6 +41,26 @@ struct BMICalculatorView: View {
                             .foregroundColor(.red)
                     }
                 }
+
+                Section(header: Text("参考资料")) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("BMI 计算公式和分类标准参考以下权威来源：")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Link("世界卫生组织 (WHO) - BMI 分类标准", destination: URL(string: "https://www.who.int/health-topics/obesity")!)
+                            .font(.caption)
+
+                        Link("中国卫生健康委员会 - 成人体重判定", destination: URL(string: "http://www.nhc.gov.cn/")!)
+                            .font(.caption)
+
+                        Text("计算公式：BMI = 体重(kg) / 身高²(m)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
+                    }
+                    .padding(.vertical, 4)
+                }
             }
             .navigationTitle("BMI 计算器")
         }
