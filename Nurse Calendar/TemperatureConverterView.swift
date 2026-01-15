@@ -100,6 +100,41 @@ struct TemperatureConverterView: View {
                 Text("• 口腔: 36.5-37.5°C")
                 Text("• 肛门: 36.8-37.8°C")
             }
+
+            Section(header: Text("参考资料")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("温度转换公式和体温标准参考以下来源：")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("转换公式：")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("• °F = °C × 9/5 + 32")
+                            .font(.caption2)
+                        Text("• K = °C + 273.15")
+                            .font(.caption2)
+                    }
+                    .padding(.vertical, 2)
+
+                    Link("世界卫生组织 (WHO) - 体温测量标准", destination: URL(string: "https://www.who.int/")!)
+                        .font(.caption)
+
+                    Link("中国卫生健康委员会 - 体温监测指南", destination: URL(string: "http://www.nhc.gov.cn/")!)
+                        .font(.caption)
+
+                    Text("• 《临床护理技术规范》- 体温测量")
+                        .font(.caption)
+                        .foregroundColor(.primary)
+
+                    Text("注：体温测量结果受测量方式、时间、环境等因素影响，如有异常请及时就医。")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                        .padding(.top, 4)
+                }
+                .padding(.vertical, 4)
+            }
         }
         .navigationTitle("体温转换器")
     }

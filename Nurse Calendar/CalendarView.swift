@@ -14,19 +14,23 @@ struct CalendarView: View {
     var body: some View {
         VStack(spacing: 20) {
             // 星期显示
-            HStack {
+            HStack(spacing: 0) {
                 ForEach(daysOfWeek, id: \.self) { day in
                     Text(day)
+                        .font(.system(size: 15, weight: .semibold))
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 8)
+                        .background(Color(.systemGray6))
                 }
             }
-            
+            .cornerRadius(8)
+
             // 调整网格间距
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
                 ForEach(Array(getDays().enumerated()), id: \.offset) { index, date in
                     if let date = date {
-                        DayView(date: date, 
+                        DayView(date: date,
                                selectedDate: $selectedDate,
                                isInDisplayedMonth: isInCurrentMonth(date))
                     } else {
@@ -36,8 +40,11 @@ struct CalendarView: View {
                     }
                 }
             }
+
+            Spacer(minLength: 0)
         }
         .padding(.horizontal)
+        .frame(minHeight: 480)
     }
     
     private func getDays() -> [Date?] {

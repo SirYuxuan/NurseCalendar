@@ -188,27 +188,29 @@ struct ShiftView: View {
                             }
                             .padding(.horizontal, 16)
 
-                            TabView(selection: $currentMonthOffset) {
-                                CalendarView(date: getPreviousMonth(), selectedDate: $selectedDate)
-                                    .tag(-1)
+                            GeometryReader { geometry in
+                                TabView(selection: $currentMonthOffset) {
+                                    CalendarView(date: getPreviousMonth(), selectedDate: $selectedDate)
+                                        .tag(-1)
 
-                                CalendarView(date: selectedDate, selectedDate: $selectedDate)
-                                    .tag(0)
+                                    CalendarView(date: selectedDate, selectedDate: $selectedDate)
+                                        .tag(0)
 
-                                CalendarView(date: getNextMonth(), selectedDate: $selectedDate)
-                                    .tag(1)
-                            }
-                            .tabViewStyle(.page(indexDisplayMode: .never))
-                            .frame(height: UIScreen.main.bounds.width * 1.1)
-                            .onChange(of: currentMonthOffset) { oldValue, newValue in
-                                if newValue == -1 {
-                                    selectedDate = getPreviousMonth()
-                                    currentMonthOffset = 0
-                                } else if newValue == 1 {
-                                    selectedDate = getNextMonth()
-                                    currentMonthOffset = 0
+                                    CalendarView(date: getNextMonth(), selectedDate: $selectedDate)
+                                        .tag(1)
+                                }
+                                .tabViewStyle(.page(indexDisplayMode: .never))
+                                .onChange(of: currentMonthOffset) { oldValue, newValue in
+                                    if newValue == -1 {
+                                        selectedDate = getPreviousMonth()
+                                        currentMonthOffset = 0
+                                    } else if newValue == 1 {
+                                        selectedDate = getNextMonth()
+                                        currentMonthOffset = 0
+                                    }
                                 }
                             }
+                            .frame(height: 520)
                         }
 
                         Spacer()
@@ -349,5 +351,26 @@ struct ShiftView: View {
             lunarMonth: lunarMonth,
             lunarDay: lunarDay
         )
+    }
+
+    private func getCalendarHeight() -> CGFloat {
+        let screenWidth = UIScreen.main.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
+
+        // 判断是否是 iPad
+        let isIPad = UIDevice.current.userInterfaceIdiom == .pad
+
+        if isIPad {
+            // iPad: 计算实际需要的高度
+            // 星期头部：40 (padding 8*2 + 文字约24)
+            // 6行日期：6 × 58 = 348
+            // 行间距：5 × 8 = 40
+            // 上下间距：20 + 20 = 40
+            // 总计：约 468，留一些余量 = 480
+            return 480
+        } else {
+            // iPhone: 使用原来的比例
+            return screenWidth * 1.1
+        }
     }
 }

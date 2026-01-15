@@ -49,6 +49,11 @@ struct ContentView: View {
                     hasRequestedReview = true
                 }
             }
+
+            // 检查应用更新（有网络时检查，无网络时静默失败）
+            Task {
+                await UpdateChecker.checkForUpdate()
+            }
         }
         .alert("免责声明", isPresented: $showingDisclaimer) {
             Button("我已了解") {
