@@ -1,30 +1,42 @@
 import Foundation
+import WidgetKit
 
 class ShiftDataManager {
     static let shared = ShiftDataManager()
     private let userDefaults = UserDefaults(suiteName: "group.com.yuxuan.nursecalendar")
-    
+
     private init() {}
-    
-    func saveShift(_ shift: ShiftType, for date: Date) {
-        let dateString = formatDate(date)
-        if let shiftData = try? JSONEncoder().encode(shift) {
-            userDefaults?.set(shiftData, forKey: dateString)
-        }
-    }
-    
+
+    // 根据日期计算排班（使用循环模式）
     func getShift(for date: Date) -> ShiftType? {
-        let dateString = formatDate(date)
-        guard let shiftData = userDefaults?.data(forKey: dateString),
-              let shift = try? JSONDecoder().decode(ShiftType.self, from: shiftData) else {
+        guard let startDateString = userDefaults?.string(forKey: "startDate"),
+              let shiftPatternData = userDefaults?.data(forKey: "shiftPattern"),
+              let startDate = ISO8601DateFormatter().date(from: startDateString),
+              let shiftPattern = try? JSONDecoder().decode([ShiftType].self, from: shiftPatternData),
+              !shiftPattern.isEmpty else {
             return nil
         }
-        return shift
+
+        let calendar = Calendar.current
+        let startDay = calendar.startOfDay(for: startDate)
+        let targetDay = calendar.startOfDay(for: date)
+        let days = calendar.dateComponents([.day], from: startDay, to: targetDay).day ?? 0
+        let patternLength = shiftPattern.count
+        let normalizedDays = ((days % patternLength) + patternLength) % patternLength
+
+        return shiftPattern[normalizedDays]
     }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+
+    // 获取每周起始日设置
+    func getWeekStartsOnMonday() -> Bool {
+        return userDefaults?.bool(forKey: "weekStartsOnMonday") ?? false
     }
-} 
+
+    // 当外部数据更新后，调用此方法以通知小组件刷新
+    func reloadWidgets() {
+        // 优先按 widget kind 精确刷新
+        WidgetCenter.shared.reloadTimelines(ofKind: "ShiftWidget")
+        // 作为兜底，刷新所有小组件
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+}

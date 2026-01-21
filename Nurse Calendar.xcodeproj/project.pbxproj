@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D6D808F62F20C69D0048D7EF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D808F52F20C69D0048D7EF /* WidgetKit.framework */; };
+		D6D808F72F20C69D0048D7EF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6AECF202D5DEE380061070F /* SwiftUI.framework */; };
+		D6D809062F20C69E0048D7EF /* NurseCalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D6D808F42F20C69D0048D7EF /* NurseCalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D64256FA2D1CEDB1005236DE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,6 +27,13 @@
 			remoteGlobalIDString = D64256E62D1CEDB0005236DE;
 			remoteInfo = "Nurse Calendar";
 		};
+		D6D809042F20C69E0048D7EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D64256DF2D1CEDB0005236DE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D6D808F32F20C69D0048D7EF;
+			remoteInfo = NurseCalendarWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +43,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				D6D809062F20C69E0048D7EF /* NurseCalendarWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -40,8 +54,25 @@
 		D64256E72D1CEDB0005236DE /* Nurse Calendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nurse Calendar.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D64256F92D1CEDB1005236DE /* Nurse CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Nurse CalendarTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D64257032D1CEDB1005236DE /* Nurse CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Nurse CalendarUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6A883FF2F20D873002FD0DE /* NurseCalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NurseCalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
 		D6AECF202D5DEE380061070F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		D6D808F42F20C69D0048D7EF /* NurseCalendarWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NurseCalendarWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6D808F52F20C69D0048D7EF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D6A883F92F20D489002FD0DE /* Exceptions for "NurseCalendarWidget" folder in "NurseCalendarWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+				NurseCalendarWidgetBundle.swift,
+				ShiftDataManager.swift,
+				ShiftType.swift,
+				ShiftWidget.swift,
+			);
+			target = D6D808F32F20C69D0048D7EF /* NurseCalendarWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D64256E92D1CEDB0005236DE /* Nurse Calendar */ = {
@@ -61,6 +92,9 @@
 		};
 		D6AECF222D5DEE380061070F /* NurseCalendarWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D6A883F92F20D489002FD0DE /* Exceptions for "NurseCalendarWidget" folder in "NurseCalendarWidgetExtension" target */,
+			);
 			path = NurseCalendarWidget;
 			sourceTree = "<group>";
 		};
@@ -88,12 +122,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6D808F12F20C69D0048D7EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D808F72F20C69D0048D7EF /* SwiftUI.framework in Frameworks */,
+				D6D808F62F20C69D0048D7EF /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D64256DE2D1CEDB0005236DE = {
 			isa = PBXGroup;
 			children = (
+				D6A883FF2F20D873002FD0DE /* NurseCalendarWidgetExtension.entitlements */,
 				D64256E92D1CEDB0005236DE /* Nurse Calendar */,
 				D64256FC2D1CEDB1005236DE /* Nurse CalendarTests */,
 				D64257062D1CEDB1005236DE /* Nurse CalendarUITests */,
@@ -109,6 +153,7 @@
 				D64256E72D1CEDB0005236DE /* Nurse Calendar.app */,
 				D64256F92D1CEDB1005236DE /* Nurse CalendarTests.xctest */,
 				D64257032D1CEDB1005236DE /* Nurse CalendarUITests.xctest */,
+				D6D808F42F20C69D0048D7EF /* NurseCalendarWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				D6AECF202D5DEE380061070F /* SwiftUI.framework */,
+				D6D808F52F20C69D0048D7EF /* WidgetKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -136,6 +182,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D809052F20C69E0048D7EF /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D64256E92D1CEDB0005236DE /* Nurse Calendar */,
@@ -193,6 +240,25 @@
 			productReference = D64257032D1CEDB1005236DE /* Nurse CalendarUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D6D808F32F20C69D0048D7EF /* NurseCalendarWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6D809082F20C69E0048D7EF /* Build configuration list for PBXNativeTarget "NurseCalendarWidgetExtension" */;
+			buildPhases = (
+				D6D808F02F20C69D0048D7EF /* Sources */,
+				D6D808F12F20C69D0048D7EF /* Frameworks */,
+				D6D808F22F20C69D0048D7EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NurseCalendarWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = NurseCalendarWidgetExtension;
+			productReference = D6D808F42F20C69D0048D7EF /* NurseCalendarWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -200,7 +266,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					D64256E62D1CEDB0005236DE = {
@@ -213,6 +279,9 @@
 					D64257022D1CEDB1005236DE = {
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = D64256E62D1CEDB0005236DE;
+					};
+					D6D808F32F20C69D0048D7EF = {
+						CreatedOnToolsVersion = 26.0.1;
 					};
 				};
 			};
@@ -233,6 +302,7 @@
 				D64256E62D1CEDB0005236DE /* Nurse Calendar */,
 				D64256F82D1CEDB1005236DE /* Nurse CalendarTests */,
 				D64257022D1CEDB1005236DE /* Nurse CalendarUITests */,
+				D6D808F32F20C69D0048D7EF /* NurseCalendarWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -253,6 +323,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D64257012D1CEDB1005236DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D808F22F20C69D0048D7EF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -283,6 +360,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6D808F02F20C69D0048D7EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -295,6 +379,11 @@
 			isa = PBXTargetDependency;
 			target = D64256E62D1CEDB0005236DE /* Nurse Calendar */;
 			targetProxy = D64257042D1CEDB1005236DE /* PBXContainerItemProxy */;
+		};
+		D6D809052F20C69E0048D7EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D6D808F32F20C69D0048D7EF /* NurseCalendarWidgetExtension */;
+			targetProxy = D6D809042F20C69E0048D7EF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -423,6 +512,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Nurse Calendar/Nurse Calendar.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Nurse Calendar/Preview Content\"";
@@ -455,6 +545,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Nurse Calendar/Nurse Calendar.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Nurse Calendar/Preview Content\"";
@@ -550,6 +641,70 @@
 			};
 			name = Release;
 		};
+		D6D809092F20C69E0048D7EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = NurseCalendarWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XB876TT3Z8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NurseCalendarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NurseCalendarWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.oofo.Nurse-Calendar.NurseCalendarWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D6D8090A2F20C69E0048D7EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = NurseCalendarWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XB876TT3Z8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NurseCalendarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NurseCalendarWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.oofo.Nurse-Calendar.NurseCalendarWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -585,6 +740,15 @@
 			buildConfigurations = (
 				D64257142D1CEDB1005236DE /* Debug */,
 				D64257152D1CEDB1005236DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D6D809082F20C69E0048D7EF /* Build configuration list for PBXNativeTarget "NurseCalendarWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6D809092F20C69E0048D7EF /* Debug */,
+				D6D8090A2F20C69E0048D7EF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 struct ShiftTemplate {
     let name: String
@@ -39,6 +40,7 @@ struct SettingsView: View {
     @AppStorage("shiftPattern") private var shiftPatternData: Data = {
         try! JSONEncoder().encode(ShiftType.defaultPattern)
     }()
+    @AppStorage("weekStartsOnMonday") private var weekStartsOnMonday: Bool = false
 
     @State private var startDate = Date()
     @State private var shiftPattern: [ShiftType] = []
@@ -55,10 +57,21 @@ struct SettingsView: View {
                     .environment(\.locale, Locale(identifier: "zh_CN"))
                     .onChange(of: startDate) { oldValue, newValue in
                         startDateString = newValue.ISO8601Format()
+                        syncToWidget()
                     }
             } footer: {
                 Text("从这天开始按照下方顺序循环排班")
                     .font(.caption)
+            }
+
+            Section("日历设置") {
+                Picker("每周起始日", selection: $weekStartsOnMonday) {
+                    Text("周日").tag(false)
+                    Text("周一").tag(true)
+                }
+                .onChange(of: weekStartsOnMonday) { oldValue, newValue in
+                    syncToWidget()
+                }
             }
 
             Section("排班设置") {
@@ -168,7 +181,18 @@ struct SettingsView: View {
     private func savePattern() {
         if let data = try? JSONEncoder().encode(shiftPattern) {
             shiftPatternData = data
+            syncToWidget()
         }
+    }
+
+    private func syncToWidget() {
+        SharedDataManager.shared.syncShiftData(
+            startDateString: startDateString,
+            shiftPatternData: shiftPatternData,
+            weekStartsOnMonday: weekStartsOnMonday
+        )
+        // 刷新小组件
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func loadSavedData() {
@@ -181,6 +205,8 @@ struct SettingsView: View {
             shiftPattern = ShiftType.defaultPattern
             savePattern()
         }
+        // 确保小组件数据同步
+        syncToWidget()
     }
 }
 
